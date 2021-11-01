@@ -13,21 +13,8 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import com.google.firebase.firestore.FirebaseFirestore
-import androidx.annotation.NonNull
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-
-import com.google.android.gms.tasks.OnFailureListener
-
-import com.google.firebase.firestore.DocumentReference
-
-import com.google.android.gms.tasks.OnSuccessListener
-import com.google.firebase.firestore.QueryDocumentSnapshot
-
-import com.google.firebase.firestore.QuerySnapshot
-
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -104,6 +91,8 @@ class MainActivity : AppCompatActivity() {
                         "HELP",
                         "DocumentSnapshot added with ID: " + documentReference.id
                     )
+                    Toast.makeText(applicationContext, "Added Successfully!", Toast.LENGTH_SHORT)
+                        .show()
                 }
                 .addOnFailureListener { e -> Log.w("HELP", "Error adding document", e) }
         }
@@ -135,6 +124,34 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun updateNote(note: Note) {
+        CoroutineScope(Dispatchers.IO).launch {
+            db.collection("notes").document(note.id).set(note).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("HELP", "DocumentSnapshot successfully updated!")
+                    Toast.makeText(applicationContext, "Updated Successfully!", Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    Log.w("HELP", "Error getting documents.", task.exception)
+                }
+            }
+        }
+    }
+
+    fun deleteNote(note: Note) {
+        CoroutineScope(Dispatchers.IO).launch {
+            db.collection("notes").document(note.id).delete().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(applicationContext, "Deleted Successfully!", Toast.LENGTH_SHORT)
+                        .show()
+                    Log.d("HELP", "DocumentSnapshot successfully updated!")
+                } else {
+                    Log.w("HELP", "Error getting documents.", task.exception)
+                }
+            }
+        }
+    }
+
     fun showEditDialog(note: Note) {
         val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -159,6 +176,8 @@ class MainActivity : AppCompatActivity() {
             if (updatedTitle.trim().isNotEmpty() && updatedNote.trim().isNotEmpty()) {
                 if (updatedTitle != title || updatedNote != note) {
                     //update note
+                    updateNote(Note(id,updatedTitle,updatedNote))
+                    getAllNotes()
                 }
                 dialog.dismiss()
             }
@@ -189,6 +208,8 @@ class MainActivity : AppCompatActivity() {
 
         deleteButton.setOnClickListener {
             //delete note
+            deleteNote(Note(id,title,note))
+            getAllNotes()
             clearFields()
             dialog.dismiss()
         }
