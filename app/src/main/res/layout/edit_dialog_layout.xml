@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:id="@+id/ll_edit_dialog"
+    android:layout_width="match_parent"
+    android:minWidth="300dp"
+    android:background="@drawable/bg_linear_layout"
+    android:padding="10dp"
+    android:gravity="center"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:textColor="@color/purple_500"
+        android:text="Edit Note"/>
+
+    <EditText
+        android:id="@+id/edt_titleDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:background="@drawable/bg_field"
+        android:ems="10"
+        android:hint="Title"
+        android:maxLength="50"
+        android:inputType="textPersonName"
+        android:padding="5dp" />
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="5dp" />
+    <EditText
+        android:id="@+id/edt_noteDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_weight="1"
+        android:background="@drawable/bg_field"
+        android:ems="10"
+        android:hint="Note"
+        android:maxLength="100"
+        android:inputType="textPersonName"
+        android:padding="5dp" />
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="10dp" />
+    <Button
+        android:id="@+id/btn_saveDialog"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_field"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:minWidth="35dp"
+        android:minHeight="35dp"
+        android:text="Save" />
+
+</LinearLayout>
