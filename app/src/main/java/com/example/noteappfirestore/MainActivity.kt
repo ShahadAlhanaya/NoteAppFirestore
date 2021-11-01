@@ -12,6 +12,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -30,9 +31,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var recyclerView: RecyclerView
     lateinit var adapter: NotesAdapter
 
-    var notesList = arrayListOf<Note>()
-
-    private var db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val notesViewModel by lazy { ViewModelProvider(this).get(NotesViewModel::class.java) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +49,9 @@ class MainActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 
-        getAllNotes()
+        notesViewModel.getAllNotes().observe(this, {
+                notes -> adapter.setData(notes)
+        })
 
         addButton.setOnClickListener {
 
@@ -59,12 +60,12 @@ class MainActivity : AppCompatActivity() {
 
             if (note.trim().isNotEmpty() && title.trim().isNotEmpty()) {
                 //insert note
-                addNote(Note("", note, title))
+                notesViewModel.addNote(Note("", note, title))
+                Toast.makeText(applicationContext, "Added Successfully!", Toast.LENGTH_SHORT).show()
                 clearFields()
             } else {
                 Toast.makeText(applicationContext, "please enter your note", Toast.LENGTH_SHORT)
                     .show()
-
             }
 
         }
@@ -76,78 +77,6 @@ class MainActivity : AppCompatActivity() {
                 //search note
             } else {
 
-            }
-        }
-    }
-
-    fun addNote(note: Note) {
-        // Add a new document with a generated ID
-        CoroutineScope(Dispatchers.IO).launch {
-            db.collection("notes")
-                .add(note)
-                .addOnSuccessListener { documentReference ->
-                    getAllNotes()
-                    Log.d(
-                        "HELP",
-                        "DocumentSnapshot added with ID: " + documentReference.id
-                    )
-                    Toast.makeText(applicationContext, "Added Successfully!", Toast.LENGTH_SHORT)
-                        .show()
-                }
-                .addOnFailureListener { e -> Log.w("HELP", "Error adding document", e) }
-        }
-    }
-
-    fun getAllNotes() {
-        //Read
-        CoroutineScope(Dispatchers.IO).launch {
-            db.collection("notes")
-                .get()
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        notesList.clear()
-                        for (document in task.result!!) {
-                            notesList.add(
-                                Note(
-                                    document.id,
-                                    document.data["title"].toString(),
-                                    document.data["note"].toString()
-                                )
-                            )
-                            Log.d("HELP", document.id + " => " + document.data["note"])
-                        }
-                        adapter.setData(notesList)
-                    } else {
-                        Log.w("HELP", "Error getting documents.", task.exception)
-                    }
-                }
-        }
-    }
-
-    fun updateNote(note: Note) {
-        CoroutineScope(Dispatchers.IO).launch {
-            db.collection("notes").document(note.id).set(note).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.d("HELP", "DocumentSnapshot successfully updated!")
-                    Toast.makeText(applicationContext, "Updated Successfully!", Toast.LENGTH_SHORT)
-                        .show()
-                } else {
-                    Log.w("HELP", "Error getting documents.", task.exception)
-                }
-            }
-        }
-    }
-
-    fun deleteNote(note: Note) {
-        CoroutineScope(Dispatchers.IO).launch {
-            db.collection("notes").document(note.id).delete().addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Toast.makeText(applicationContext, "Deleted Successfully!", Toast.LENGTH_SHORT)
-                        .show()
-                    Log.d("HELP", "DocumentSnapshot successfully updated!")
-                } else {
-                    Log.w("HELP", "Error getting documents.", task.exception)
-                }
             }
         }
     }
@@ -176,8 +105,8 @@ class MainActivity : AppCompatActivity() {
             if (updatedTitle.trim().isNotEmpty() && updatedNote.trim().isNotEmpty()) {
                 if (updatedTitle != title || updatedNote != note) {
                     //update note
-                    updateNote(Note(id,updatedTitle,updatedNote))
-                    getAllNotes()
+                    notesViewModel.updateNote(Note(id, updatedTitle, updatedNote))
+                    Toast.makeText(applicationContext, "Updated Successfully!", Toast.LENGTH_SHORT).show()
                 }
                 dialog.dismiss()
             }
@@ -208,8 +137,8 @@ class MainActivity : AppCompatActivity() {
 
         deleteButton.setOnClickListener {
             //delete note
-            deleteNote(Note(id,title,note))
-            getAllNotes()
+            notesViewModel.deleteNote(Note(id, title, note))
+            Toast.makeText(applicationContext, "Deleted Successfully!", Toast.LENGTH_SHORT).show()
             clearFields()
             dialog.dismiss()
         }
@@ -236,7 +165,6 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.allNotes -> {
                 //get all notes
-                getAllNotes()
                 clearFields()
                 true
             }

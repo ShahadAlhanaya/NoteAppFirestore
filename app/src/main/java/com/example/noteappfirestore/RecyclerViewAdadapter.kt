@@ -32,6 +32,9 @@ class NotesAdapter(private val context: MainActivity): RecyclerView.Adapter<Note
         holder.noteTextView.text = notesList[position].note
         holder.titleTextView.text = notesList[position].title
 
+        val id= notesList[position].id
+        print(id)
+
         holder.editButton.setOnClickListener {
             context.showEditDialog(notesList[position])
         }
