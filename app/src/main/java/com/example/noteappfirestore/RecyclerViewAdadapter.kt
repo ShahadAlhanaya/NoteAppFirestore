@@ -6,9 +6,10 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.noteappfirestore.fragments.NotesFragment
 import kotlinx.android.synthetic.main.note_row.view.*
 
-class NotesAdapter(private val context: MainActivity): RecyclerView.Adapter<NotesAdapter.UserViewHolder>() {
+class NotesAdapter(private val context: NotesFragment): RecyclerView.Adapter<NotesAdapter.UserViewHolder>() {
 
     private var notesList = emptyList<Note>()
 
@@ -36,7 +37,7 @@ class NotesAdapter(private val context: MainActivity): RecyclerView.Adapter<Note
         print(id)
 
         holder.editButton.setOnClickListener {
-            context.showEditDialog(notesList[position])
+            context.editNote(notesList[position])
         }
         holder.deleteButton.setOnClickListener {
             context.showDeleteDialog(notesList[position])
